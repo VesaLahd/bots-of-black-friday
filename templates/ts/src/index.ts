@@ -1,5 +1,5 @@
-import { move, register } from "./api";
-import { Move } from "./types/Move";
+import { getGameState, move, register } from "./api";
+import { distanceBetweenPositions, moveToPosition } from "./utils";
 
 export const main = async () => {
   // Look in the api.ts file for api calls
@@ -15,12 +15,41 @@ export const main = async () => {
 
   const startingInformation = await register("💩");
 
-  setInterval(() => {
-    const moves: Move[] = ["LEFT", "RIGHT"];
-    move(
+  setInterval(async () => {
+    let target = startingInformation.map.exit;
+    const gameState = await getGameState();
+    const us = gameState.players.find(p => p.name === '💩')
+    if (!us) return;
+
+    const affordableItems = gameState.items.filter(item => {
+      const price = item.price - (item.discountPercent / 100 * item.price)
+      return price <= us.money
+    })
+
+    const isAnyValuable = affordableItems.some(item => item.price !== 0)
+
+    const closestItem = affordableItems.reduce((acc, item) => {
+      if (distanceBetweenPositions(acc.position, us.position) > distanceBetweenPositions(item.position, us.position)) return item;
+      return acc;
+    });
+
+    if (isAnyValuable) {
+      const closestItem = affordableItems.reduce((acc, item) => {
+      if (distanceBetweenPositions(acc.position, us.position) > distanceBetweenPositions(item.position, us.position)) return item;
+      return acc;
+      });
+      target = closestItem.position
+    }
+
+
+    const nextMove = moveToPosition(target, us);
+
+  
+    return move(
       startingInformation.id,
-      moves[Math.floor(Math.random() * moves.length)]
+      nextMove
     );
+
   }, 500);
 };
 
