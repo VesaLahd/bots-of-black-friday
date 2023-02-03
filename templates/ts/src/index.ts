@@ -1,9 +1,11 @@
 import { getGameState, move, register, say } from "./api";
+import { Player } from "./types/Player";
 import { Position } from "./types/Position";
 import {
   distanceBetweenPositions,
   isAffordable,
   isExit,
+  isMine,
   isOccupied,
   isSamePosition,
   isWall,
@@ -68,9 +70,13 @@ export const main = async () => {
 
   let goingToExit = false;
 
-  const isValid = (pos: Position) => {
+  const isValid = (pos: Position, user: Player) => {
     //TODO
     if (isWall(startingInformation.map, pos)) {
+      return false;
+    }
+
+    if(user.health < 50 && isMine(startingInformation.map, pos)) {
       return false;
     }
 
@@ -144,7 +150,7 @@ export const main = async () => {
     } = aStar({
       start: us.position,
       isEnd: (node: Position) => isSamePosition(node, target),
-      neighbor: (node: Position) => positionNeighbors(node).filter(isValid),
+      neighbor: (node: Position) => positionNeighbors(node).filter(p => isValid(p, us)),
       hash: (node: Position) => {
         return JSON.stringify(node);
       },
