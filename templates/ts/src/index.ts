@@ -2,6 +2,7 @@ import { getGameState, move, register } from "./api";
 import { Position } from "./types/Position";
 import {
   distanceBetweenPositions,
+  findMostValuableTarget,
   isAffordable,
   isExit,
   isOccupied,
@@ -47,13 +48,6 @@ export const main = async () => {
     const us = gameState.players.find((p) => p.name === myName);
     if (!us) return;
 
-    const mostScore = Math.max(
-      ...gameState.finishedPlayers.map((p) => p.score)
-    );
-    if (mostScore < us.score) {
-      goingToExit = true;
-    }
-
     const otherPlayers = gameState.players.filter((p) => p.name !== myName);
 
     if (
@@ -64,32 +58,39 @@ export const main = async () => {
       return move(startingInformation.id, "USE");
     }
 
-    if(!goingToExit) {
-      let affordableItems = gameState.items.filter((item) =>
-        isAffordable(item, us.money)
+    if (!goingToExit) {
+      target = findMostValuableTarget(
+        startingInformation.map.exit,
+        gameState,
+        us
       );
-
-      if (
-        affordableItems.some((item) => isSamePosition(item.position, us.position))
-      ) {
-        return move(startingInformation.id, "PICK");
-      }
-
-      affordableItems = affordableItems.filter(item => isOccupied(gameState.players, item.position));
-
-      if(affordableItems.length) {
-        const closestItem = affordableItems.reduce((acc, item) => {
-          if (
-            distanceBetweenPositions(acc.position, us.position) >
-            distanceBetweenPositions(item.position, us.position)
-          )
-            return item;
-          return acc;
-        });
-        target = closestItem.position;
-      } else {
+      if (isSamePosition(target, startingInformation.map.exit))
         goingToExit = true;
-      }
+      // let affordableItems = gameState.items.filter((item) =>
+      //   isAffordable(item, us.money)
+      // );
+
+      // if (
+      //   affordableItems.some((item) => isSamePosition(item.position, us.position))
+      // ) {
+      //   return move(startingInformation.id, "PICK");
+      // }
+
+      // affordableItems = affordableItems.filter(item => isOccupied(gameState.players, item.position));
+
+      // if(affordableItems.length) {
+      //   const closestItem = affordableItems.reduce((acc, item) => {
+      //     if (
+      //       distanceBetweenPositions(acc.position, us.position) >
+      //       distanceBetweenPositions(item.position, us.position)
+      //     )
+      //       return item;
+      //     return acc;
+      //   });
+      //   target = closestItem.position;
+      // } else {
+      //   goingToExit = true;
+      // }
     }
 
     const {
