@@ -1,4 +1,4 @@
-import { getGameState, move, register } from "./api";
+import { getGameState, move, register, say } from "./api";
 import { Position } from "./types/Position";
 import {
   distanceBetweenPositions,
@@ -11,6 +11,39 @@ import {
   positionNeighbors,
 } from "./utils";
 const aStar: any = require("a-star");
+
+const spawnMessages = [
+  '💩storm is rising',
+  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "RUSH B!!!",
+]
+
+const gunSounds = [
+  'PEW PEW',
+  "RATATATATATATATA",
+  "Prepare to die",
+]
+
+const moveSounds = [
+  `And I would walk 500 miles
+  And I would roll 500 more`,
+  "Hut, two, three, four",
+  "Oispa kaljaa",
+  "Bottom text",
+  ":koilliskulma:",
+  "U can't touch this",
+  "Gotta go fast",
+  "I am speed"
+]
+
+const getRandomIndex = (max: number) => Math.floor(Math.random() * max)
+
+function maybeSaySomething(id: string) {
+  const randomIndex = getRandomIndex(10)
+  if (randomIndex === 0) {
+    say(id, moveSounds[getRandomIndex(moveSounds.length)])
+  }
+}
 
 export const main = async () => {
   // Look in the api.ts file for api calls
@@ -25,6 +58,13 @@ export const main = async () => {
   // You can use this code as a starting point for your own implementation.
   const myName = "💩";
   const startingInformation = await register(myName);
+
+  setTimeout(() => {
+    say(
+      startingInformation.id,
+      spawnMessages[getRandomIndex(spawnMessages.length)]
+    )
+  }, 500)
 
   let goingToExit = false;
 
@@ -42,6 +82,7 @@ export const main = async () => {
   };
 
   setInterval(async () => {
+    maybeSaySomething(startingInformation.id)
     let target = startingInformation.map.exit;
     const gameState = await getGameState();
     const us = gameState.players.find((p) => p.name === myName);
@@ -61,6 +102,10 @@ export const main = async () => {
       us.usableItems.length > 0 &&
       us.health < 100
     ) {
+      say(
+        startingInformation.id,
+        gunSounds[getRandomIndex(gunSounds.length)]
+      )
       return move(startingInformation.id, "USE");
     }
 
