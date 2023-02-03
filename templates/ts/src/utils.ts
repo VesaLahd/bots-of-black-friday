@@ -31,7 +31,7 @@ export const positionNeighbors = (position: Position): Position[] => [
 
 enum Tile {
   FLOOR = "_",
-  WALL = "X",
+  WALL = "x",
   EXIT = "o",
 }
 
