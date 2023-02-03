@@ -97,7 +97,7 @@ export const main = async () => {
     const mostScore = Math.max(
       ...gameState.finishedPlayers.map((p) => p.score)
     );
-    if (mostScore < us.score) {
+    if (mostScore < us.score && us.money <= 1000) {
       goingToExit = true;
     }
 
