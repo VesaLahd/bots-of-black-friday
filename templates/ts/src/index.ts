@@ -41,7 +41,7 @@ const moveSounds = [
 const getRandomIndex = (max: number) => Math.floor(Math.random() * max)
 
 function maybeSaySomething(id: string) {
-  const randomIndex = getRandomIndex(100)
+  const randomIndex = getRandomIndex(30)
   if (randomIndex === 0) {
     say(id, moveSounds[getRandomIndex(moveSounds.length)])
   }
@@ -123,7 +123,6 @@ export const main = async () => {
       if (
         affordableItems.some((item) => isSamePosition(item.position, us.position))
       ) {
-        say(startingInformation.id, "YOINK")
         return move(startingInformation.id, "PICK");
       }
 
@@ -162,7 +161,7 @@ export const main = async () => {
     const nextMove = moveToPosition(next, us);
 
     return move(startingInformation.id, nextMove);
-  }, 100);
+  }, 500);
 };
 
 if (require.main === module) {
