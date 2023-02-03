@@ -78,7 +78,7 @@ export const itemScore = (item: Item, us: Player) => {
   const distance = distanceBetweenPositions(item.position, us.position);
   const price = item.price - (item.discountPercent / 100) * item.price;
 
-  return distance / price;
+  return price / distance;
 };
 
 export const mostValuableItem = (
@@ -106,19 +106,15 @@ export const findMostValuableTarget = (
   us: Player
 ) => {
   let target = null;
-  if (hasHighestScore(gameState.finishedPlayers, us)) {
-    target = exit;
-  }
 
   const otherPlayers = gameState.players.filter((p) => p.name !== us.name);
 
   if (us.health < 60) {
     target = nearestBeer(otherPlayers, gameState.items, us);
-  }
-  if (us.money > 100) {
-    target = mostValuableItem(otherPlayers, gameState.items, us);
+  } else if (us.money > 100) {
+    target = mostValuableItem(otherPlayers, gameState.items.filter(item => isAffordable(item, us.money)), us);
   }
 
   if (!target) target = exit;
-  return exit;
+  return target;
 };

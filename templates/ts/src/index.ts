@@ -95,8 +95,6 @@ export const main = async () => {
     const us = gameState.players.find((p) => p.name === myName);
     if (!us) return;
 
-<<<<<<< HEAD
-=======
     const mostScore = Math.max(
       ...gameState.finishedPlayers.map((p) => p.score)
     );
@@ -104,7 +102,6 @@ export const main = async () => {
       goingToExit = true;
     }
 
->>>>>>> main
     const otherPlayers = gameState.players.filter((p) => p.name !== myName);
 
     if (
@@ -119,37 +116,25 @@ export const main = async () => {
       return move(startingInformation.id, "USE");
     }
 
+    const affordableItems = gameState.items.filter((item) =>
+         isAffordable(item, us.money)
+      );
+
+    if (affordableItems.some((item) => isSamePosition(item.position, us.position))) {
+      return move(startingInformation.id, "PICK");
+    }
+
     if (!goingToExit) {
       target = findMostValuableTarget(
         startingInformation.map.exit,
         gameState,
         us
       );
-<<<<<<< HEAD
-      if (isSamePosition(target, startingInformation.map.exit))
-=======
 
-      if (
-        affordableItems.some((item) => isSamePosition(item.position, us.position))
-      ) {
-        return move(startingInformation.id, "PICK");
+      if (isSamePosition(target, startingInformation.map.exit)) {
+        goingToExit = true;
       }
 
-      affordableItems = affordableItems.filter(item => !isOccupied(gameState.players, item.position));
-
-      if(affordableItems.length !== 0) {
-        const closestItem = affordableItems.reduce((acc, item) => {
-          if (
-            distanceBetweenPositions(acc.position, us.position) >
-            distanceBetweenPositions(item.position, us.position)
-          )
-            return item;
-          return acc;
-        });
-        target = closestItem.position;
-      } else {
->>>>>>> main
-        goingToExit = true;
       // let affordableItems = gameState.items.filter((item) =>
       //   isAffordable(item, us.money)
       // );
