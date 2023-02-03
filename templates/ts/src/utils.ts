@@ -34,7 +34,7 @@ enum Tile {
   FLOOR = "_",
   WALL = "x",
   EXIT = "o",
-  MINE = "#"
+  MINE = "#",
 }
 
 const isTile =
@@ -75,10 +75,7 @@ export const nearestBeer = (players: Player[], items: Item[], us: Player) => {
 };
 
 export const itemScore = (item: Item, us: Player) => {
-  const distance = distanceBetweenPositions(item.position, us.position);
-  const price = item.price - (item.discountPercent / 100) * item.price;
-
-  return price / distance;
+  return item.discountPercent;
 };
 
 export const mostValuableItem = (
@@ -112,7 +109,12 @@ export const findMostValuableTarget = (
   if (us.health < 60) {
     target = nearestBeer(otherPlayers, gameState.items, us);
   } else if (us.money > 100) {
-    target = mostValuableItem(otherPlayers, gameState.items.filter(item => isAffordable(item, us.money)), us);
+    target = mostValuableItem(
+      otherPlayers,
+      gameState.items.filter((item) => isAffordable(item, us.money)),
+      us
+    );
+    if (!target) target = nearestBeer(otherPlayers, gameState.items, us);
   }
 
   if (!target) target = exit;
