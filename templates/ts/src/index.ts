@@ -1,5 +1,8 @@
+import { isBoxedPrimitive } from "util/types";
 import { getGameState, move, register } from "./api";
-import { distanceBetweenPositions, moveToPosition } from "./utils";
+import { Position } from "./types/Position";
+import { distanceBetweenPositions, isAffordable, isExit, isSamePosition, isWall, moveToPosition, positionNeighbors } from "./utils";
+const aStar: any = require('a-star');
 
 export const main = async () => {
   // Look in the api.ts file for api calls
@@ -15,6 +18,23 @@ export const main = async () => {
   const myName = "💩";
   const startingInformation = await register(myName);
 
+  const endPositions: Position[] = [];
+
+  let goingToExit = false;
+
+  const isValid = (pos: Position) => {
+    //TODO
+    if(isWall(startingInformation.map, pos)) {
+      return false;
+    }
+
+    if(!goingToExit && isExit(startingInformation.map, pos)) {
+      return false;
+    }
+
+    return true;
+  }
+
   setInterval(async () => {
     let target = startingInformation.map.exit;
     const gameState = await getGameState();
@@ -27,31 +47,49 @@ export const main = async () => {
       return move(
         startingInformation.id, "USE")
     }
+    
+    const affordableItems = gameState.items.filter(item => isAffordable(item, us.money));
 
-    const affordableItems = gameState.items.filter(item => {
-      const price = item.price - (item.discountPercent / 100 * item.price)
-      return price <= us.money
-    })
+    if(affordableItems.some(item => isSamePosition(item.position, us.position))){
+      return move(
+        startingInformation.id,
+        "PICK"
+      );
+    }
 
-    const isAnyValuable = affordableItems.some(item => item.price !== 0)
-
-    const closestItem = affordableItems.reduce((acc, item) => {
-      if (distanceBetweenPositions(acc.position, us.position) > distanceBetweenPositions(item.position, us.position)) return item;
-      return acc;
-    });
+    const isAnyValuable = affordableItems.some(item => item.price !== 0);
 
     if (isAnyValuable) {
       const closestItem = affordableItems.reduce((acc, item) => {
       if (distanceBetweenPositions(acc.position, us.position) > distanceBetweenPositions(item.position, us.position)) return item;
       return acc;
       });
-      target = closestItem.position
+      target = closestItem.position;
+    } else {
+      target = startingInformation.map.exit;
+      goingToExit = true;
     }
 
+    endPositions.push(target);
 
-    const nextMove = moveToPosition(target, us);
+    const { status, path: [current, next] } = aStar({
+        start: us.position,
+        isEnd: (node: Position) => isSamePosition(node, target),
+        neighbor: (node: Position) => positionNeighbors(node).filter(isValid),
+        hash: (node: Position) => {
+          return JSON.stringify(node);
+        },
+        distance: () => 1,
+        heuristic: (node: Position) => distanceBetweenPositions(node, target),
+        timeout: 500,
+      });
 
-  
+    console.log(next);
+
+    const nextMove = moveToPosition(next, us);
+
+    console.log(target, nextMove);
+
     return move(
       startingInformation.id,
       nextMove
