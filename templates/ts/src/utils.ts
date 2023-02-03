@@ -32,8 +32,9 @@ export const positionNeighbors = (position: Position): Position[] => [
 
 enum Tile {
   FLOOR = "_",
-  WALL = "X",
+  WALL = "x",
   EXIT = "o",
+  MINE = "#"
 }
 
 const isTile =
@@ -44,6 +45,8 @@ const isTile =
 export const isWall = isTile(Tile.WALL);
 
 export const isExit = isTile(Tile.EXIT);
+
+export const isMine = isTile(Tile.MINE);
 
 export const isOccupied = (players: Player[], position: Position) =>
   players.some((p) => isSamePosition(p.position, position));
