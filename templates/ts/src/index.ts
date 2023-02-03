@@ -13,7 +13,7 @@ export const main = async () => {
   // being registered moves randomly to left and right.
   // You can use this code as a starting point for your own implementation.
 
-  const startingInformation = await register("My cool bot");
+  const startingInformation = await register("💩");
 
   setInterval(() => {
     const moves: Move[] = ["LEFT", "RIGHT"];
@@ -21,7 +21,7 @@ export const main = async () => {
       startingInformation.id,
       moves[Math.floor(Math.random() * moves.length)]
     );
-  }, 1000);
+  }, 500);
 };
 
 if (require.main === module) {

@@ -11,6 +11,7 @@ const getUrl = (): string => {
     return LOCAL_URL;
   }
   return PROD_URL;
+  // return LOCAL_URL;
 };
 
 const headers = {
