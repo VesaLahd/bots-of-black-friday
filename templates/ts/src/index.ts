@@ -75,9 +75,9 @@ export const main = async () => {
         return move(startingInformation.id, "PICK");
       }
 
-      affordableItems = affordableItems.filter(item => isOccupied(gameState.players, item.position));
+      affordableItems = affordableItems.filter(item => !isOccupied(gameState.players, item.position));
 
-      if(affordableItems.length) {
+      if(affordableItems.length !== 0) {
         const closestItem = affordableItems.reduce((acc, item) => {
           if (
             distanceBetweenPositions(acc.position, us.position) >
