@@ -39,7 +39,7 @@ const moveSounds = [
 const getRandomIndex = (max: number) => Math.floor(Math.random() * max)
 
 function maybeSaySomething(id: string) {
-  const randomIndex = getRandomIndex(10)
+  const randomIndex = getRandomIndex(100)
   if (randomIndex === 0) {
     say(id, moveSounds[getRandomIndex(moveSounds.length)])
   }
@@ -117,6 +117,7 @@ export const main = async () => {
       if (
         affordableItems.some((item) => isSamePosition(item.position, us.position))
       ) {
+        say(startingInformation.id, "YOINK")
         return move(startingInformation.id, "PICK");
       }
 
