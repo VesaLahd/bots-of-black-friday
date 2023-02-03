@@ -10,8 +10,8 @@ const getUrl = (): string => {
   if (process.env.NODE_ENV === "development") {
     return LOCAL_URL;
   }
-  //return PROD_URL;
-  return LOCAL_URL;
+  return PROD_URL;
+  // return LOCAL_URL;
 };
 
 const headers = {
