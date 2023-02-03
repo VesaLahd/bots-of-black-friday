@@ -4,6 +4,7 @@ import {
   distanceBetweenPositions,
   isAffordable,
   isExit,
+  isOccupied,
   isSamePosition,
   isWall,
   moveToPosition,
@@ -24,8 +25,6 @@ export const main = async () => {
   // You can use this code as a starting point for your own implementation.
   const myName = "💩";
   const startingInformation = await register(myName);
-
-  const endPositions: Position[] = [];
 
   let goingToExit = false;
 
@@ -51,8 +50,9 @@ export const main = async () => {
     const mostScore = Math.max(
       ...gameState.finishedPlayers.map((p) => p.score)
     );
-    if (mostScore < us.score)
-      return move(startingInformation.id, moveToPosition(target, us));
+    if (mostScore < us.score) {
+      goingToExit = true;
+    }
 
     const otherPlayers = gameState.players.filter((p) => p.name !== myName);
 
@@ -64,34 +64,33 @@ export const main = async () => {
       return move(startingInformation.id, "USE");
     }
 
-    const affordableItems = gameState.items.filter((item) =>
-      isAffordable(item, us.money)
-    );
+    if(!goingToExit) {
+      let affordableItems = gameState.items.filter((item) =>
+        isAffordable(item, us.money)
+      );
 
-    if (
-      affordableItems.some((item) => isSamePosition(item.position, us.position))
-    ) {
-      return move(startingInformation.id, "PICK");
+      if (
+        affordableItems.some((item) => isSamePosition(item.position, us.position))
+      ) {
+        return move(startingInformation.id, "PICK");
+      }
+
+      affordableItems = affordableItems.filter(item => isOccupied(gameState.players, item.position));
+
+      if(affordableItems.length) {
+        const closestItem = affordableItems.reduce((acc, item) => {
+          if (
+            distanceBetweenPositions(acc.position, us.position) >
+            distanceBetweenPositions(item.position, us.position)
+          )
+            return item;
+          return acc;
+        });
+        target = closestItem.position;
+      } else {
+        goingToExit = true;
+      }
     }
-
-    const isAnyValuable = affordableItems.some((item) => item.price !== 0);
-
-    if (isAnyValuable) {
-      const closestItem = affordableItems.reduce((acc, item) => {
-        if (
-          distanceBetweenPositions(acc.position, us.position) >
-          distanceBetweenPositions(item.position, us.position)
-        )
-          return item;
-        return acc;
-      });
-      target = closestItem.position;
-    } else {
-      target = startingInformation.map.exit;
-      goingToExit = true;
-    }
-
-    endPositions.push(target);
 
     const {
       status,

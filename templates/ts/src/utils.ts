@@ -43,3 +43,6 @@ const isTile =
 export const isWall = isTile(Tile.WALL);
 
 export const isExit = isTile(Tile.EXIT);
+
+export const isOccupied = (players: Player[], position: Position) =>
+  players.some((p) => isSamePosition(p.position, position));
